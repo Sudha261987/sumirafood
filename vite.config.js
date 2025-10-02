@@ -4,8 +4,10 @@ import tailwindcss from '@tailwindcss/vite'
 
 // https://vite.de
 export default defineConfig({
-  base: "/recipe-finder/",
+  
   plugins: [
     react(),tailwindcss(),
+
   ],
+  base: "/RecipeFinder/",
 })
