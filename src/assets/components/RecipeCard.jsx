@@ -6,13 +6,13 @@ function RecipeCard({ recipe, onFavorite }) {
 
   return (
     <div className="bg-white rounded-2xl shadow-md overflow-hidden hover:shadow-lg transition">
-      <img src={recipe.image} alt={recipe.name} className="w-full h-40 object-cover" />
+      <img src={recipe.image} alt={recipe.name} className="w-full h-60 object-cover" />
 
       <div className="p-4">
         <h2 className="text-lg font-bold">{recipe.name}</h2>
         <p className="text-gray-600">{recipe.desc}</p>
 
-        
+      
         <div className="flex space-x-1 my-2">
           {[1, 2, 3, 4, 5].map((star) => (
             <span
@@ -33,7 +33,7 @@ function RecipeCard({ recipe, onFavorite }) {
             onClick={() => onFavorite && onFavorite(recipe)}
             className="text-sm bg-orange-500 text-white px-3 py-1 rounded hover:bg-orange-600"
           >
-            ❤️ 
+            ❤️ Favorite
           </button>
         </div>
       </div>

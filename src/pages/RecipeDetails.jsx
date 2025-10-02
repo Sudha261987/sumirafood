@@ -10,9 +10,9 @@ function RecipeDetails() {
 
   return (
     <div className="bg-white p-6 rounded-2xl shadow-md max-w-2xl mx-auto">
-      <h1 className="text-2xl font-bold mb-2">{recipe.name}</h1>
-      <img src={recipe.image} alt={recipe.name} className="w-full h-45 object-cover rounded mb-4" />
-      <p className="text-gray-700 mb-4">{recipe.desc}</p>
+      <h1 className="text-2xl text-center align-center font-bold mb-2">{recipe.name}</h1>
+      <img src={recipe.image} alt={recipe.name} className="w-full h-85 object-cover rounded mb-4" />
+      <p className="text-black-700 text-xl text-center mb-4">{recipe.desc}</p>
 
       <h3 className="font-bold mt-4">Ingredients:</h3>
       <ul className="list-disc ml-6 mb-4">
