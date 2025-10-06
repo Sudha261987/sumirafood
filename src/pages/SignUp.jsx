@@ -1,40 +1,80 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 
-function SignUp() {
-  const [form, setForm] = useState({ name: "", email: "", password: "" });
+export default function SignUp() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirm, setConfirm] = useState("");
   const navigate = useNavigate();
 
-  function handleChange(e) {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  }
-
-  function handleSubmit(e) {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    const users = JSON.parse(localStorage.getItem("users")) || [];
 
-    if (users.find((u) => u.email === form.email)) {
-      alert("Email already exists ❌");
+    if (!email || !password || !confirm) {
+      alert("Please fill all fields!");
       return;
     }
 
-    users.push(form);
-    localStorage.setItem("users", JSON.stringify(users));
-    alert("Registered successfully ✅ Please Sign In");
+    if (password !== confirm) {
+      alert("Passwords do not match!");
+      return;
+    }
+
+    // ✅ Save user data in localStorage (demo only)
+    localStorage.setItem("user", JSON.stringify({ email, password }));
+
+    alert("Signup successful! Please sign in.");
     navigate("/signin");
-  }
+  };
 
   return (
-    <div className="max-w-md mx-auto mt-20 p-6 bg-white rounded shadow">
-      <h2 className="text-xl font-bold mb-4">Sign Up</h2>
-      <form onSubmit={handleSubmit} className="space-y-3">
-        <input name="name" value={form.name} onChange={handleChange} placeholder="Name" className="w-full p-2 border rounded" />
-        <input name="email" type="email" value={form.email} onChange={handleChange} placeholder="Email" className="w-full p-2 border rounded" />
-        <input name="password" type="password" value={form.password} onChange={handleChange} placeholder="Password" className="w-full p-2 border rounded" />
-        <button className="w-full bg-green-600 text-white py-2 rounded">Register</button>
+    <div className="flex justify-center items-center h-screen bg-orange-100">
+      <form
+        onSubmit={handleSubmit}
+        className="bg-white p-8 rounded-2xl shadow-md w-80"
+      >
+        <h2 className="text-2xl font-bold mb-4 text-center text-orange-600">
+          Create Account
+        </h2>
+
+        <input
+          type="email"
+          placeholder="Email"
+          className="w-full border p-2 mb-3 rounded"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
+
+        <input
+          type="password"
+          placeholder="Password"
+          className="w-full border p-2 mb-3 rounded"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
+
+        <input
+          type="password"
+          placeholder="Confirm Password"
+          className="w-full border p-2 mb-4 rounded"
+          value={confirm}
+          onChange={(e) => setConfirm(e.target.value)}
+        />
+
+        <button
+          type="submit"
+          className="bg-orange-500 text-white w-full py-2 rounded hover:bg-orange-600"
+        >
+          Sign Up
+        </button>
+
+        <p className="text-center mt-3 text-sm">
+          Already have an account?{" "}
+          <Link to="/signin" className="text-orange-600 font-semibold">
+            Sign In
+          </Link>
+        </p>
       </form>
     </div>
   );
 }
-
-export default SignUp;

@@ -1,31 +1,22 @@
 import { Link } from "react-router-dom";
 
-function Navbar({ currentUser, onLogout }) {
+export default function Navbar() {
   return (
-    <nav className="bg-orange-600 text-white px-6 py-4 flex justify-between items-center">
-      <h1 className="font-bold text-lg">🍴 Sumira Recipe Finder</h1>
+    <nav className="bg-orange-500 p-4 text-white flex justify-between items-center">
+      <h1 className="font-bold text-3xl">Sumira Foodhub</h1>
       <div className="space-x-4">
-        <Link to="/" className="font-semibold">Home</Link>
-        <Link to="/dashboard" className="font-semibold">Dashboard</Link>
-        {currentUser ? (
-          <>
-            <span>Hi, {currentUser.name}</span>
-            <button
-              onClick={onLogout}
-              className="bg-red-500 px-3 py-1 rounded"
-            >
-              Sign Out
-            </button>
-          </>
-        ) : (
-          <>
-            <Link to="/signin" className="font-semibold">Sign In</Link>
-            <Link to="/signup" className="font-semibold">Sign Up</Link>
-          </>
-        )}
+        <Link to="/" className="hover:text-yellow-300 font-bold text-xl">Home</Link>
+        <Link to="/dashboard" className="hover:text-yellow-300 font-bold text-xl">Dashboard</Link>
+        <button
+          onClick={() => {
+            localStorage.removeItem("signedIn");
+            window.location.href = "#/signin";
+          }}
+          className="hover:text-yellow-300 font-bold text-xl"
+        >
+          Sign Out
+        </button>
       </div>
     </nav>
   );
 }
-
-export default Navbar;

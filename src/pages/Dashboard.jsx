@@ -1,143 +1,254 @@
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import { recipesData } from "../data/Recipes";
 
-function Dashboard({ currentUser }) {
-  const [favorites, setFavorites] = useState([]);
-  const [recipes, setRecipes] = useState([]);
-  const [form, setForm] = useState({ id: null, name: "", desc: "" });
+export default function Dashboard() {
+  const [favourites, setFavourites] = useState([]);
+  const [customRecipes, setCustomRecipes] = useState([]);
+  const [form, setForm] = useState({
+    name: "",
+    meal: "",
+    desc: "",
+    image: "",
+    ingredients: "",
+    instructions: "",
+    nutrition: "",
+  });
+  const [editingIndex, setEditingIndex] = useState(null);
 
   
   useEffect(() => {
-    if (currentUser) {
-      const fav = JSON.parse(localStorage.getItem(`favorites_${currentUser.email}`)) || [];
-      setFavorites(fav);
+    const favIds = JSON.parse(localStorage.getItem("favourites")) || [];
+    const storedCustom = JSON.parse(localStorage.getItem("customRecipes")) || [];
+    const favDefault = recipesData.filter((r) => favIds.includes(r.id));
+    const favCustom = storedCustom.filter((r) => favIds.includes(r.id));
 
-      const saved = JSON.parse(localStorage.getItem(`custom_${currentUser.email}`)) || [];
-      setRecipes(saved);
-    }
-  }, [currentUser]);
+    // ✅ Merge both favourites
+    const allFavs = [...favDefault, ...favCustom];
 
-  function saveCustom(newRecipes) {
-    localStorage.setItem(`custom_${currentUser.email}`, JSON.stringify(newRecipes));
-    setRecipes(newRecipes);
-  }
+    setFavourites(allFavs);
+    
+  }, []);
 
+  useEffect(() => {
+    localStorage.setItem("customRecipes", JSON.stringify(customRecipes));
+  }, [customRecipes]);
 
-  function handleSubmit(e) {
+  // 🔤 Handle input
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setForm({ ...form, [name]: value });
+  };
+
+  // ➕ Add / Update
+  const handleAddRecipe = (e) => {
     e.preventDefault();
-    if (form.id) {
-      const updated = recipes.map((r) => (r.id === form.id ? form : r));
-      saveCustom(updated);
-    } else {
-      const newRecipe = { ...form, id: Date.now() };
-      saveCustom([...recipes, newRecipe]);
+    if (!form.name || !form.meal) {
+      alert("Please fill at least name and meal type!");
+      return;
     }
-    setForm({ id: null, name: "", desc: "" });
-  }
+
+    const newRecipe = {
+      id: Date.now(),
+      ...form,
+      ingredients: form.ingredients.split(",").map((i) => i.trim()),
+      instructions: form.instructions.split(",").map((i) => i.trim()),
+      nutrition: form.nutrition,
+    };
+
+    if (editingIndex !== null) {
+      const updated = [...customRecipes];
+      updated[editingIndex] = newRecipe;
+      setCustomRecipes(updated);
+      setEditingIndex(null);
+      alert("Recipe updated successfully!");
+    } else {
+      setCustomRecipes([...customRecipes, newRecipe]);
+      alert("Recipe added successfully!");
+    }
+
+    setForm({
+      name: "",
+      meal: "",
+      desc: "",
+      image: "",
+      ingredients: "",
+      instructions: "",
+      nutrition: "",
+    });
+  };
+
+  // ✏️ Edit
+  const handleEdit = (index) => {
+    const r = customRecipes[index];
+    setForm({
+      name: r.name,
+      meal: r.meal,
+      desc: r.desc,
+      image: r.image,
+      ingredients: r.ingredients.join(", "),
+      instructions: r.instructions.join(", "),
+      nutrition: r.nutrition,
+    });
+    setEditingIndex(index);
+  };
 
   
-  function handleEdit(r) {
-    setForm(r);
-  }
-
-  
-  function handleDelete(id) {
-    const updated = recipes.filter((r) => r.id !== id);
-    saveCustom(updated);
-  }
-
-  
-  function handleRemoveFav(id) {
-    const updated = favorites.filter((f) => f.id !== id);
-    localStorage.setItem(`favorites_${currentUser.email}`, JSON.stringify(updated));
-    setFavorites(updated);
-  }
+  const handleDelete = (index) => {
+    if (confirm("Delete this recipe?")) {
+      const updated = [...customRecipes];
+      updated.splice(index, 1);
+      setCustomRecipes(updated);
+    }
+  };
 
   return (
-    <div className="bg-white p-6 rounded-2xl shadow-md">
-      <h1 className="text-2xl font-bold mb-4">Dashboard</h1>
-      <p className="mb-4">Logged in as: {currentUser.email}</p>
+    <div className="p-6 bg-orange-50 min-h-screen">
+      <h2 className="text-2xl font-bold mb-6 text-orange-600 text-center">
+        🍽️ My Dashboard
+      </h2>
 
-      {/* ----------- Favourites ----------- */}
-      <h2 className="text-xl font-bold mb-2">My Favorite Recipes</h2>
-      {favorites.length === 0 ? (
-        <p className="text-gray-600">No favorites yet </p>
+      {/* ---------- Add / Edit Recipe Form ---------- */}
+      <div className="bg-white shadow-md rounded-xl p-4 mb-6 max-w-3xl mx-auto">
+        <h3 className="text-lg font-semibold mb-2 text-orange-600">
+          {editingIndex !== null ? "✏️ Edit Recipe" : "➕ Add New Recipe"}
+        </h3>
+        <form onSubmit={handleAddRecipe} className="grid gap-3">
+          <input
+            name="name"
+            value={form.name}
+            onChange={handleChange}
+            placeholder="Recipe Name"
+            className="border p-2 rounded"
+          />
+          <input
+            name="meal"
+            value={form.meal}
+            onChange={handleChange}
+            placeholder="Meal Type"
+            className="border p-2 rounded"
+          />
+          <input
+            name="desc"
+            value={form.desc}
+            onChange={handleChange}
+            placeholder="Description"
+            className="border p-2 rounded"
+          />
+          <input
+            name="image"
+            value={form.image}
+            onChange={handleChange}
+            placeholder="Image URL"
+            className="border p-2 rounded"
+          />
+          <input
+            name="ingredients"
+            value={form.ingredients}
+            onChange={handleChange}
+            placeholder="Ingredients (comma separated)"
+            className="border p-2 rounded"
+          />
+          <input
+            name="instructions"
+            value={form.instructions}
+            onChange={handleChange}
+            placeholder="Instructions (comma separated)"
+            className="border p-2 rounded"
+          />
+          <input
+            name="nutrition"
+            value={form.nutrition}
+            onChange={handleChange}
+            placeholder="Nutrition Info"
+            className="border p-2 rounded"
+          />
+          <button
+            type="submit"
+            className="bg-orange-500 text-white py-2 rounded hover:bg-orange-600"
+          >
+            {editingIndex !== null ? "Update Recipe" : "Add Recipe"}
+          </button>
+        </form>
+      </div>
+
+      {/* ---------- Favourite Recipes ---------- */}
+      <h2 className="text-2xl font-semibold mb-3 text-orange-600">
+        ❤️ Favourite Recipes
+      </h2>
+      {favourites.length === 0 ? (
+        <p className="text-gray-500 mb-6">No favourite recipes yet.</p>
       ) : (
-        <ul className="space-y-2 mb-6">
-          {favorites.map((r) => (
-            <li key={r.id} className="flex justify-between items-center border p-2 rounded">
-              <div>
-                <h3 className="font-bold">{r.name}</h3>
-                <p className="text-gray-600">{r.desc}</p>
-              </div>
-              <button
-                onClick={() => handleRemoveFav(r.id)}
-                className="bg-red-500 text-white px-3 py-1 rounded"
+        <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-8">
+          {favourites.map((r) => (
+            <div
+              key={r.id}
+              className="bg-white p-3 rounded-xl shadow hover:shadow-lg transition"
+            >
+              {r.image && (
+                <img
+                  src={r.image}
+                  alt={r.name}
+                  className="w-full h-36 object-cover rounded"
+                />
+              )}
+              <h4 className="font-semibold mt-2">{r.name}</h4>
+              <p className="text-sm text-gray-500">{r.meal}</p>
+              <Link
+                to={`/details/${r.id}`}
+                className="text-orange-600 text-sm hover:underline"
               >
-                Remove
-              </button>
-            </li>
+                View Details
+              </Link>
+            </div>
           ))}
-        </ul>
+        </div>
       )}
 
-      {/* ----------- Custom Recipe Form ----------- */}
-      <h2 className="text-xl font-bold mb-2">Add / Edit Recipe</h2>
-      <form onSubmit={handleSubmit} className="space-y-2 mb-6">
-        <input
-          type="text"
-          name="name"
-          placeholder="Recipe Name"
-          value={form.name}
-          onChange={(e) => setForm({ ...form, name: e.target.value })}
-          className="w-full p-2 border rounded"
-        />
-        <textarea
-          name="desc"
-          placeholder="Recipe Description"
-          value={form.desc}
-          onChange={(e) => setForm({ ...form, desc: e.target.value })}
-          className="w-full p-2 border rounded"
-        />
-        <button className="bg-orange-600 text-white px-4 py-2 rounded">
-          {form.id ? "Update Recipe" : "Add Recipe"}
-        </button>
-      </form>
-
-      {/* ----------- Custom Recipe List ----------- */}
-      <h2 className="text-xl font-bold mb-2">My Custom Recipes</h2>
-      {recipes.length === 0 ? (
-        <p className="text-gray-600">No custom recipes yet </p>
+      {/* ---------- Custom Recipes Section ---------- */}
+      <h3 className="text-xl font-semibold mb-3 text-orange-600">
+        🧡 My Custom Recipes
+      </h3>
+      {customRecipes.length === 0 ? (
+        <p className="text-gray-500">No custom recipes yet.</p>
       ) : (
-        <ul className="space-y-2">
-          {recipes.map((r) => (
-            <li
+        <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          {customRecipes.map((r, index) => (
+            <div
               key={r.id}
-              className="flex justify-between items-center border p-2 rounded"
+              className="bg-white p-3 rounded-xl shadow hover:shadow-lg transition"
             >
-              <div>
-                <h3 className="font-bold">{r.name}</h3>
-                <p className="text-gray-600">{r.desc}</p>
-              </div>
-              <div className="space-x-2">
+              {r.image && (
+                <img
+                  src={r.image}
+                  alt={r.name}
+                  className="w-full h-36 object-cover rounded"
+                />
+              )}
+              <h4 className="font-semibold mt-2">
+                {r.name}</h4>
+              <p className="text-sm text-gray-500 mb-1">{r.meal}</p>
+              <p className="text-sm text-gray-600 mb-2 line-clamp-2">
+                {r.desc}
+              </p>
+              <div className="flex justify-between items-center">
                 <button
-                  onClick={() => handleEdit(r)}
-                  className="bg-yellow-500 text-white px-3 py-1 rounded"
+                  onClick={() => handleEdit(index)}
+                  className="text-sm bg-orange-500 text-white px-2 py-1 rounded hover:bg-orange-600"
                 >
                   Edit
                 </button>
                 <button
-                  onClick={() => handleDelete(r.id)}
-                  className="bg-red-500 text-white px-3 py-1 rounded"
+                  onClick={() => handleDelete(index)}
+                  className="text-sm bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600"
                 >
                   Delete
                 </button>
               </div>
-            </li>
+            </div>
           ))}
-        </ul>
+        </div>
       )}
     </div>
   );
 }
-
-export default Dashboard;

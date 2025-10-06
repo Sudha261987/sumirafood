@@ -1,44 +1,48 @@
 import { Link } from "react-router-dom";
-import { useState } from "react";
+import { Star, Heart } from "lucide-react";
 
-function RecipeCard({ recipe, onFavorite }) {
-  const [rating, setRating] = useState(0);
-
+export default function RecipeCard({ recipe, isFavourite, toggleFavourite }) {
   return (
     <div className="bg-white rounded-2xl shadow-md overflow-hidden hover:shadow-lg transition">
-      <img src={recipe.image} alt={recipe.name} className="w-full h-60 object-cover" />
-
+      <img
+        src={recipe.image}
+        alt={recipe.name}
+        className="w-full h-40 object-cover"
+      />
       <div className="p-4">
-        <h2 className="text-lg font-bold">{recipe.name}</h2>
-        <p className="text-gray-600">{recipe.desc}</p>
+        <h3 className="font-semibold text-lg">{recipe.name}</h3>
+        <p className="text-sm text-gray-500 mb-2">{recipe.meal}</p>
 
-      
-        <div className="flex space-x-1 my-2">
-          {[1, 2, 3, 4, 5].map((star) => (
-            <span
-              key={star}
-              onClick={() => setRating(star)}
-              className={`cursor-pointer ${star <= rating ? "text-yellow-500" : "text-gray-400"}`}
-            >
-              ★
-            </span>
+        {/* ⭐ Rating */}
+        <div className="flex items-center mb-3">
+          {[...Array(5)].map((_, i) => (
+            <Star
+              key={i}
+              size={18}
+              className={i < recipe.rating ? "text-yellow-400 fill-yellow-400" : "text-gray-300"}
+            />
           ))}
         </div>
 
-        <div className="flex justify-between items-center mt-2">
-          <Link to={`/recipe/${recipe.id}`} state={{ recipe }} className="text-orange-600 hover:underline">
+        <div className="flex justify-between items-center">
+          <Link
+            to={`/recipe/${recipe.id}`}
+            className="bg-orange-500 text-white text-sm px-3 py-1 rounded hover:bg-orange-600"
+          >
             View Details
           </Link>
+
           <button
-            onClick={() => onFavorite && onFavorite(recipe)}
-            className="text-sm bg-orange-500 text-white px-3 py-1 rounded hover:bg-orange-600"
+            onClick={() => toggleFavourite(recipe.id)}
+            className="p-1 rounded-full hover:bg-orange-100"
           >
-            ❤️ Favorite
+            <Heart
+              size={22}
+              className={isFavourite ? "text-red-500 fill-red-500" : "text-gray-400"}
+            />
           </button>
         </div>
       </div>
     </div>
   );
 }
-
-export default RecipeCard;
