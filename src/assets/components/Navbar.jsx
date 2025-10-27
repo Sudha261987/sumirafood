@@ -16,7 +16,7 @@ export default function Navbar() {
       <div className="flex gap-3">
         <Link to="/" className="px-3 py-1 rounded hover:bg-red-700">Home</Link>
         <Link to="/dashboard" className="px-3 py-1 rounded hover:bg-red-700">Dashboard</Link>
-        <Link to="/add" className="px-3 py-1 rounded hover:bg-red-700">Add Recipe</Link>
+        
         {!user ? (
           <>
             <Link to="/signin" className="px-3 py-1 rounded bg-white text-red-600">Sign In</Link>
