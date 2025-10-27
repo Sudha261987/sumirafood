@@ -1,26 +1,24 @@
-import { Routes, Route, Navigate } from "react-router-dom";
+import React from "react";
+import { Routes, Route } from "react-router-dom";
 import Navbar from "./assets/components/Navbar";
+import Home from "./pages/Home";
+import Dashboard from "./pages/Dashboard";
+import RecipeDetails from "./pages/RecipeDetails";
 import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
-import Home from "./pages/Home";
-import RecipeDetails from "./pages/RecipeDetails";
-import Dashboard from "./pages/Dashboard";
 
-function App() {
-  const isSignedIn = localStorage.getItem("signedIn") === "true";
-
+export default function App() {
   return (
-    <>
-      {isSignedIn && <Navbar />}
+    <div className="min-h-screen bg-gray-100">
+      <Navbar />
       <Routes>
-        <Route path="/" element={isSignedIn ? <Home /> : <Navigate to="/signin" />} />
+        <Route path="/" element={<Home />} />
+        <Route path="/recipe-details" element={<RecipeDetails />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+        
         <Route path="/signin" element={<SignIn />} />
         <Route path="/signup" element={<SignUp />} />
-        <Route path="/details/:id" element={<RecipeDetails />} />
-        <Route path="/dashboard" element={<Dashboard />} />
       </Routes>
-    </>
+    </div>
   );
 }
-
-export default App;

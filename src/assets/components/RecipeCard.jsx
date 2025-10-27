@@ -1,47 +1,64 @@
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Star, Heart } from "lucide-react";
 
-export default function RecipeCard({ recipe, isFavourite, toggleFavourite }) {
+export default function RecipeCard({ recipe }) {
+  const [favourite, setFavourite] = useState(false);
+
+  // Load favourite state when component mounts
+  useEffect(() => {
+    const favs = JSON.parse(localStorage.getItem("favourites")) || [];
+    const isFav = favs.some((r) => r.id === recipe.id);
+    setFavourite(isFav);
+  }, [recipe.id]);
+
+  const toggleFavourite = () => {
+    let favs = JSON.parse(localStorage.getItem("favourites")) || [];
+
+    if (favourite) {
+      // Remove from favourites
+      favs = favs.filter((r) => r.id !== recipe.id);
+      setFavourite(false);
+    } else {
+      // Add to favourites
+      favs.push(recipe);
+      setFavourite(true);
+    }
+
+    localStorage.setItem("favourites", JSON.stringify(favs));
+  };
+
   return (
-    <div className="bg-white rounded-2xl shadow-md overflow-hidden hover:shadow-lg transition">
-      <img
-        src={recipe.image}
-        alt={recipe.name}
-        className="w-full h-40 object-cover"
-      />
+    <div className="bg-white rounded-xl shadow overflow-hidden relative">
+      {recipe.image && (
+        <img
+          src={recipe.image}
+          alt={recipe.name}
+          className="w-full h-40 object-cover"
+        />
+      )}
+
+      <button
+        onClick={toggleFavourite}
+        className={`absolute top-2 right-2 text-xl ${
+          favourite ? "text-red-600" : "text-gray-400"
+        }`}
+      >
+        ❤️
+      </button>
+
       <div className="p-4">
         <h3 className="font-semibold text-lg">{recipe.name}</h3>
-        <p className="text-sm text-gray-500 mb-2">{recipe.meal}</p>
+        <p className="text-sm text-gray-600 mb-3">{recipe.meal}</p>
+        <p className="text-gray-500 text-sm line-clamp-2">
+          {recipe.desc}
+        </p>
 
-        {/* ⭐ Rating */}
-        <div className="flex items-center mb-3">
-          {[...Array(5)].map((_, i) => (
-            <Star
-              key={i}
-              size={18}
-              className={i < recipe.rating ? "text-yellow-400 fill-yellow-400" : "text-gray-300"}
-            />
-          ))}
-        </div>
-
-        <div className="flex justify-between items-center">
-          <Link
-            to={`/recipe/${recipe.id}`}
-            className="bg-orange-500 text-white text-sm px-3 py-1 rounded hover:bg-orange-600"
-          >
-            View Details
-          </Link>
-
-          <button
-            onClick={() => toggleFavourite(recipe.id)}
-            className="p-1 rounded-full hover:bg-orange-100"
-          >
-            <Heart
-              size={22}
-              className={isFavourite ? "text-red-500 fill-red-500" : "text-gray-400"}
-            />
-          </button>
-        </div>
+        <Link
+          to={'/recipe/${recipe.id}'}
+          className="block text-center mt-4 bg-red-600 text-white py-2 rounded hover:bg-red-700"
+        >
+          View Details
+        </Link>
       </div>
     </div>
   );
